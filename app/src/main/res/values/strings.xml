@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SimpleTweets</string>
+    <string name="login_label">Connect to Twitter</string>
+    <string name="action_settings">Settings</string>
+    <string name="home_timeline">Home Timeline</string>
+    <string name="title_activity_timeline">Tweets</string>
+    <string name="author">Author</string>
+    <string name="timestamp">time</string>
+    <string name="tweet_text">Tweet text</string>
+    <string name="handle">handle</string>
+    <string name="compose">Compose</string>
+    <string name="submit">Tweet</string>
+    <string name="compose_hint">Write your tweet</string>
+    <string name="handleTemplate">\@%s</string>
+    <string name="login_title">Tweet Viewer</string>
+    <plurals name="characters_left">
+        <item quantity="one">%d character left</item>
+        <item quantity="other">%d characters left</item>
+    </plurals>
+
+</resources>
