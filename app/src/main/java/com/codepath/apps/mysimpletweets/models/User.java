@@ -13,6 +13,9 @@ public class User extends Model {
     @Column(name = "uid") private long uid;
     @Column(name = "screenName") private String screenName;
     @Column(name = "profileImageUrl") private String profileImageUrl;
+    @Column(name = "tagline") private String tagline;
+    @Column(name = "numFollowers") private Long numFollowers;
+    @Column(name = "numFollowing") private Long numFollowing;
 
     public String getName() {
         return name;
@@ -30,6 +33,18 @@ public class User extends Model {
         return profileImageUrl;
     }
 
+    public String getTagline() {
+        return tagline;
+    }
+
+    public Long getNumFollowers() {
+        return numFollowers;
+    }
+
+    public Long getNumFollowing() {
+        return numFollowing;
+    }
+
     public User() {
         super();
     }
@@ -41,10 +56,13 @@ public class User extends Model {
             user.uid = jsonObject.getLong("id");
             user.screenName = jsonObject.getString("screen_name");
             user.profileImageUrl = jsonObject.getString("profile_image_url");
+            user.tagline = jsonObject.getString("description");
+            user.numFollowers = jsonObject.getLong("followers_count");
+            user.numFollowing = jsonObject.getLong("friends_count");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        user.save();
+//        user.save();
         return user;
     }
 }

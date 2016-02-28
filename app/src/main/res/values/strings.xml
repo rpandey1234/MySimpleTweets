@@ -15,9 +15,18 @@
     <string name="compose_hint">Write your tweet</string>
     <string name="handleTemplate">\@%s</string>
     <string name="login_title">Tweet Viewer</string>
+    <string name="profile">Profile</string>
     <plurals name="characters_left">
         <item quantity="one">%d character left</item>
         <item quantity="other">%d characters left</item>
     </plurals>
+    <string name="title_activity_profile">Profile</string>
+    <string name="name">Name</string>
+    <string name="tagline">tagline</string>
+    <string name="num_followers"># followers</string>
+    <string name="num_following">Num following</string>
+    <string name="profile_image">profile image</string>
+    <string name="follower_format">%d Followers</string>
+    <string name="following_format">%d Following</string>
 
 </resources>

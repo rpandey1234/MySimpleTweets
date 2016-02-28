@@ -111,6 +111,7 @@ public class ComposeDialog extends DialogFragment {
 
     @OnClick(R.id.btnSubmit)
     public void onSubmitClicked(View view) {
+        // TODO: this is broken
         TweetListener listener = (TweetListener) getActivity();
         listener.setTweet(editTextCompose.getText().toString().trim());
         dismiss();

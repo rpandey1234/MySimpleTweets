@@ -9,4 +9,11 @@
         app:showAsAction="ifRoom"
         android:title="@string/compose">
     </item>
+
+    <item
+        android:id="@+id/miProfile"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_profile"
+        android:title="@string/profile"
+        />
 </menu>

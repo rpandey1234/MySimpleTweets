@@ -1,6 +1,7 @@
 package com.codepath.apps.mysimpletweets;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
@@ -57,6 +58,15 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 if (context instanceof TimelineActivity) {
                     ((TimelineActivity) context).composeMessage(tweet.getUser().getScreenName());
                 }
+            }
+        });
+
+        holder.ivProfileImage.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, ProfileActivity.class);
+                intent.putExtra(TwitterClient.SCREEN_NAME, tweet.getUser().getScreenName());
+                context.startActivity(intent);
             }
         });
 
