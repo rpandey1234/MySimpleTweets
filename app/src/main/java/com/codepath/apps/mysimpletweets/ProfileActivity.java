@@ -13,6 +13,8 @@ import com.codepath.apps.mysimpletweets.models.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.apache.http.Header;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import butterknife.Bind;
@@ -49,13 +51,25 @@ public class ProfileActivity extends AppCompatActivity {
                 getSupportActionBar().setTitle(String.format(handle, user.getScreenName()));
                 populateProfileHeader(user);
             }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray responseUsers) {
+                try {
+                    user = User.fromJson(responseUsers.getJSONObject(0));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String handle = getString(R.string.handleTemplate);
+                getSupportActionBar().setTitle(String.format(handle, user.getScreenName()));
+                populateProfileHeader(user);
+            }
         });
 
         if (savedInstanceState == null) {
-            UserTimelineFragment userTimelineFragment = UserTimelineFragment.newInstance(screenName);
+            UserTimelineFragment userTweetsFragment = UserTimelineFragment.newInstance(screenName);
             // display user fragment within this activity dynamically
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.flContainer, userTimelineFragment);
+            ft.replace(R.id.flContainer, userTweetsFragment);
             ft.commit();
         }
     }
