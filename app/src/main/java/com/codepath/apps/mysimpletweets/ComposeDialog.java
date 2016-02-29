@@ -14,20 +14,20 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.codepath.apps.mysimpletweets.fragments.HomeTimelineFragment;
+import com.codepath.apps.mysimpletweets.fragments.TweetsListFragment;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
- * Created by rahul on 2/20/16.
+ * Dialog to compose tweet
  */
 public class ComposeDialog extends DialogFragment {
 
-    public interface TweetListener {
-        void setTweet(String body);
-    }
+    public TweetsListFragment tweetsListFragment;
 
     @Bind(R.id.editTextCompose) EditText editTextCompose;
     @Bind(R.id.btnSubmit) Button btnSubmit;
@@ -52,6 +52,8 @@ public class ComposeDialog extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+        tweetsListFragment = new HomeTimelineFragment();
+
         View view = inflater.inflate(R.layout.fragment_compose, container);
         ButterKnife.bind(this, view);
         updateCharacterLeftTv(CHARACTER_LIMIT);
@@ -111,9 +113,12 @@ public class ComposeDialog extends DialogFragment {
 
     @OnClick(R.id.btnSubmit)
     public void onSubmitClicked(View view) {
-        // TODO: this is broken
-        TweetListener listener = (TweetListener) getActivity();
-        listener.setTweet(editTextCompose.getText().toString().trim());
+        TimelineActivity activity = (TimelineActivity) getActivity();
+        HomeTimelineFragment homeFragment = activity.homeFragment;
+        if (homeFragment == null) {
+            return;
+        }
+        homeFragment.sendTweet(editTextCompose.getText().toString().trim());
         dismiss();
     }
 
@@ -122,5 +127,4 @@ public class ComposeDialog extends DialogFragment {
                 R.plurals.characters_left, nChars, nChars);
         tvCharLeft.setText(charactersLeft);
     }
-
 }

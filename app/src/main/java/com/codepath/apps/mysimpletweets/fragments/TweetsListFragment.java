@@ -1,5 +1,6 @@
 package com.codepath.apps.mysimpletweets.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -16,11 +17,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
 import com.codepath.apps.mysimpletweets.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.mysimpletweets.R;
+import com.codepath.apps.mysimpletweets.TimelineActivity;
 import com.codepath.apps.mysimpletweets.TweetsAdapter;
 import com.codepath.apps.mysimpletweets.TwitterApplication;
 import com.codepath.apps.mysimpletweets.TwitterClient;
@@ -50,8 +53,48 @@ public abstract class TweetsListFragment extends Fragment {
     LinearLayoutManager layoutManager;
     Long oldestId;
     TwitterClient client;
-    private static final boolean SHOULD_MAKE_REQUEST = true;
-    private static final String RESPONSE_FILE = "response.json";
+    LoadingListener loadingListener;
+
+    public void sendTweet(String body) {
+        // Make API request
+        client.postTweet(body, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                // Inject the tweet into the tweets adapter so it is immediately visible
+                Tweet tweet = Tweet.fromJson(response);
+                tweets.add(0, tweet);
+                aTweets.notifyItemInserted(0);
+                rvTweets.scrollToPosition(0);
+                Toast.makeText(getContext(), "Tweet published!", Toast.LENGTH_LONG).show();
+                Log.d("DEBUG", response.toString());
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers,
+                    Throwable throwable, JSONObject errorResponse) {
+                Log.d("DEBUG", errorResponse.toString());
+            }
+        });
+    }
+
+    public interface LoadingListener {
+
+        public void startLoading();
+
+        public void endLoading();
+    }
+
+    // Store the listener (activity) that will have events fired once the fragment is attached
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (activity instanceof LoadingListener) {
+            loadingListener = (LoadingListener) activity;
+        } else {
+            throw new ClassCastException(activity.toString() + " must implement LoadingListener");
+        }
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,11 +107,10 @@ public abstract class TweetsListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
-        // test: add delay here
         View view = inflater.inflate(R.layout.fragment_tweets_list, container, false);
         ButterKnife.bind(this, view);
         tweets = new ArrayList<>();
-        aTweets = new TweetsAdapter(getContext(), tweets);
+        aTweets = new TweetsAdapter(getContext(), tweets, client);
         rvTweets.setAdapter(aTweets);
         layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         rvTweets.setLayoutManager(layoutManager);
@@ -99,29 +141,11 @@ public abstract class TweetsListFragment extends Fragment {
     public abstract void populateTweetList(boolean getNewest);
 
     public JsonHttpResponseHandler getJsonResponseHandler(final boolean getNewest) {
-        // Check if we have response file already
-//        if (!SHOULD_MAKE_REQUEST && fileExists(getContext(), RESPONSE_FILE)) {
-//            BufferedReader input = null;
-//            try {
-//                input = new BufferedReader(new InputStreamReader(openFileInput(RESPONSE_FILE)));
-//                String line;
-//                StringBuffer buffer = new StringBuffer();
-//                while ((line = input.readLine()) != null) {
-//                    buffer.append(line + "\n");
-//                }
-//                String text = buffer.toString();
-//                JSONArray response = new JSONArray(text);
-//                tweets.addAll(Tweet.fromJson(response));
-//                Log.d("DEBUG", "Found tweets: " + tweets.size());
-//                aTweets.notifyDataSetChanged();
-//            } catch (IOException | JSONException e) {
-//                e.printStackTrace();
-//            }
+        loadingListener.startLoading();
         return new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 super.onSuccess(statusCode, headers, response);
-//                    Log.d("DEBUG", response.toString());
                 int previousSize = aTweets.getItemCount();
                 List<Tweet> apiTweets = Tweet.fromJson(response);
                 if (getNewest) {
@@ -136,19 +160,10 @@ public abstract class TweetsListFragment extends Fragment {
                 if (!tweets.isEmpty()) {
                     oldestId = tweets.get(tweets.size() - 1).getUid();
                 }
-//                    try {
-//                        // write response json to file which can be used for future debugging
-//                        FileOutputStream fos = openFileOutput(RESPONSE_FILE, MODE_WORLD_WRITEABLE);
-//                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
-//                        writer.write(response.toString());
-//                        writer.close();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-
                 if (swipeContainer != null) {
                     swipeContainer.setRefreshing(false);
                 }
+                loadingListener.endLoading();
             }
             @Override
             public void onFailure(int statusCode, Header[] headers,
@@ -157,13 +172,8 @@ public abstract class TweetsListFragment extends Fragment {
                     Log.d("DEBUG", errorResponse.toString());
                 }
                 Toast.makeText(getContext(), "Failed to get Tweets", Toast.LENGTH_SHORT).show();
+                loadingListener.endLoading();
             }
         };
-    }
-
-
-    private boolean fileExists(Context context, String filename) {
-        File file = context.getFileStreamPath(filename);
-        return file != null && file.exists();
     }
 }

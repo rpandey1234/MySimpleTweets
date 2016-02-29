@@ -10,26 +10,32 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.codepath.apps.mysimpletweets.fragments.HomeTimelineFragment;
 import com.codepath.apps.mysimpletweets.fragments.MentionsTimelineFragment;
+import com.codepath.apps.mysimpletweets.fragments.TweetsListFragment.LoadingListener;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class TimelineActivity extends AppCompatActivity {
+public class TimelineActivity extends AppCompatActivity implements LoadingListener {
 
     @Bind(R.id.viewpager) ViewPager viewPager;
     @Bind(R.id.tabs) PagerSlidingTabStrip tabStrip;
+    private MenuItem miActionProgressItem;
+    public HomeTimelineFragment homeFragment;
+    public MentionsTimelineFragment mentionsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +83,13 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        miActionProgressItem = menu.findItem(R.id.miActionProgress);
+        ProgressBar v = (ProgressBar) MenuItemCompat.getActionView(miActionProgressItem);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
@@ -107,6 +120,20 @@ public class TimelineActivity extends AppCompatActivity {
         composeDialog.show(fragmentManager, "fragment_compose");
     }
 
+    @Override
+    public void startLoading() {
+        if (miActionProgressItem != null) {
+            miActionProgressItem.setVisible(true);
+        }
+    }
+
+    @Override
+    public void endLoading() {
+        if (miActionProgressItem != null) {
+            miActionProgressItem.setVisible(false);
+        }
+    }
+
     // return the order of the fragments in the view pager
     public class TweetsPagerAdapter extends FragmentPagerAdapter {
         private String tabTitles[] = {"Home", "Mentions"};
@@ -122,6 +149,20 @@ public class TimelineActivity extends AppCompatActivity {
             } else {
                 return new MentionsTimelineFragment();
             }
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+            switch (position) {
+                case 0:
+                    homeFragment = (HomeTimelineFragment) createdFragment;
+                    break;
+                case 1:
+                    mentionsFragment = (MentionsTimelineFragment) createdFragment;
+                    break;
+            }
+            return createdFragment;
         }
 
         @Override

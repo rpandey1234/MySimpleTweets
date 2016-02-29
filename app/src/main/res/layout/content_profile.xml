@@ -24,5 +24,4 @@
         android:layout_below="@+id/flProfileContainer"
         android:id="@+id/flContainer" />
 
-
 </RelativeLayout>

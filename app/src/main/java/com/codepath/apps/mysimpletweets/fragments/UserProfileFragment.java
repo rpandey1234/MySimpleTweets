@@ -1,20 +1,21 @@
 package com.codepath.apps.mysimpletweets.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.codepath.apps.mysimpletweets.EndlessRecyclerViewScrollListener;
+import com.codepath.apps.mysimpletweets.LoginActivity;
+import com.codepath.apps.mysimpletweets.ProfileActivity;
 import com.codepath.apps.mysimpletweets.R;
-import com.codepath.apps.mysimpletweets.TweetsAdapter;
 import com.codepath.apps.mysimpletweets.TwitterApplication;
 import com.codepath.apps.mysimpletweets.TwitterClient;
 import com.codepath.apps.mysimpletweets.models.User;
@@ -24,8 +25,6 @@ import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -43,6 +42,7 @@ public class UserProfileFragment extends Fragment {
     @Bind(R.id.tvTagline) TextView tvTagline;
     @Bind(R.id.followers) TextView tvFollowers;
     @Bind(R.id.following) TextView tvFollowing;
+    @Bind(R.id.btnLogout) Button btnLogout;
 
     public static UserProfileFragment newInstance(String screenName) {
         UserProfileFragment userProfileFragment = new UserProfileFragment();
@@ -64,6 +64,16 @@ public class UserProfileFragment extends Fragment {
         String screenName = getArguments().getString(TwitterClient.SCREEN_NAME);
         View view = inflater.inflate(R.layout.fragment_profile_info, container, false);
         ButterKnife.bind(this, view);
+
+        btnLogout.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                client.clearAccessToken();
+                Intent intent = new Intent(getContext(), LoginActivity.class);
+                startActivity(intent);
+            }
+        });
+
         client.getUserInfo(screenName, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -98,6 +108,5 @@ public class UserProfileFragment extends Fragment {
         // set action bar title
         String handle = getString(R.string.handleTemplate);
         getActivity().setTitle(String.format(handle, user.getScreenName()));
-
     }
 }

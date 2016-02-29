@@ -1,20 +1,30 @@
 package com.codepath.apps.mysimpletweets;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.codepath.apps.mysimpletweets.models.Tweet;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.apache.http.Header;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -26,12 +36,14 @@ import butterknife.ButterKnife;
  */
 public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder> {
 
+    private final TwitterClient client;
     private List<Tweet> tweets;
     private Context context;
 
-    public TweetsAdapter(Context context, List<Tweet> tweets) {
+    public TweetsAdapter(Context context, List<Tweet> tweets, TwitterClient client) {
         this.tweets = tweets;
         this.context = context;
+        this.client = client;
     }
 
     @Override
@@ -41,8 +53,15 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         return new ViewHolder(tweetView);
     }
 
+    public void composeMessage(String replyAt) {
+        FragmentManager fragmentManager = ((AppCompatActivity) context).getSupportFragmentManager();
+        ComposeDialog composeDialog = ComposeDialog.newInstance(replyAt);
+
+        composeDialog.show(fragmentManager, "fragment_compose");
+    }
+
     @Override
-    public void onBindViewHolder(TweetsAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(final TweetsAdapter.ViewHolder holder, int position) {
         final Tweet tweet = tweets.get(position);
         holder.tvUserName.setText(tweet.getUser().getName());
         String handle = context.getResources().getString(R.string.handleTemplate);
@@ -52,12 +71,61 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         holder.tvRetweets.setText(Long.toString(tweet.getRetweets()));
         holder.tvBody.setText(tweet.getBody());
 
+        colorLeftIcon(holder.tvRetweets, tweet.haveRetweeted() ? Color.RED : Color.LTGRAY);
+        colorLeftIcon(holder.tvLikes, tweet.haveLiked() ? Color.RED: Color.LTGRAY);
+
         holder.tvReply.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (context instanceof TimelineActivity) {
-                    ((TimelineActivity) context).composeMessage(tweet.getUser().getScreenName());
-                }
+                composeMessage(tweet.getUser().getScreenName());
+            }
+        });
+
+        // TODO: indicate retweets/likes when loading feed
+        holder.tvRetweets.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                client.postRetweet(tweet.getUid(), new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        colorLeftIcon(holder.tvRetweets, Color.RED);
+                        tweet.setHaveRetweeted(true);
+                        holder.tvRetweets.setText(Long.toString(tweet.getRetweets() + 1));
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers,
+                            Throwable throwable, JSONObject errorResponse) {
+                        if (errorResponse != null) {
+                            Log.d("DEBUG", errorResponse.toString());
+                        }
+                        Toast.makeText(context, "Failed to retweet", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+
+        holder.tvLikes.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                client.postLike(tweet.getUid(), new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        // TODO: add animation
+                        colorLeftIcon(holder.tvLikes, Color.RED);
+                        tweet.setHaveLiked(true);
+                        holder.tvLikes.setText(Long.toString(tweet.getLikes() + 1));
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers,
+                            Throwable throwable, JSONObject errorResponse) {
+                        if (errorResponse != null) {
+                            Log.d("DEBUG", errorResponse.toString());
+                        }
+                        Toast.makeText(context, "Failed to like", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 
@@ -93,12 +161,15 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            TextView views[] = new TextView[]{tvRetweets, tvReply, tvLikes};
-            for (TextView textview : views) {
-                Drawable[] compoundDrawables = textview.getCompoundDrawables();
-                Drawable leftDrawable = compoundDrawables[0];
-                leftDrawable.setColorFilter(Color.LTGRAY, Mode.SRC_IN);
-            }
+            Drawable[] compoundDrawables = tvReply.getCompoundDrawables();
+            Drawable leftDrawable = compoundDrawables[0];
+            leftDrawable.setColorFilter(Color.LTGRAY, Mode.SRC_IN);
         }
+    }
+
+    public void colorLeftIcon(TextView textView, int color) {
+        Drawable[] compoundDrawables = textView.getCompoundDrawables();
+        Drawable leftDrawable = compoundDrawables[0];
+        leftDrawable.setColorFilter(color, Mode.SRC_IN);
     }
 }

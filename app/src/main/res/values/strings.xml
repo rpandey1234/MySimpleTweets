@@ -28,5 +28,7 @@
     <string name="profile_image">profile image</string>
     <string name="follower_format">%d Followers</string>
     <string name="following_format">%d Following</string>
+    <string name="logout">Logout</string>
+    <string name="loading">Loading...</string>
 
 </resources>

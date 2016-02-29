@@ -28,6 +28,8 @@ public class Tweet extends Model {
     @Column(name = "retweets") long retweets;
     @Column(name = "likes") long likes;
     @Column(name = "User") User user;
+    @Column(name = "have_retweeted") boolean have_retweeted;
+    @Column(name = "have_liked") boolean have_liked;
 
     public long getUid() {
         return uid;
@@ -53,6 +55,22 @@ public class Tweet extends Model {
         return likes;
     }
 
+    public boolean haveRetweeted() {
+        return have_retweeted;
+    }
+
+    public boolean haveLiked() {
+        return have_liked;
+    }
+
+    public void setHaveRetweeted(boolean haveRetweeted) {
+        this.have_retweeted = have_retweeted;
+    }
+
+    public void setHaveLiked(boolean haveLiked) {
+        this.have_liked = have_liked;
+    }
+
     // Make sure to always define this constructor with no arguments
     public Tweet() {
         super();
@@ -67,6 +85,8 @@ public class Tweet extends Model {
             tweet.uid = object.getLong("id");
             tweet.retweets = object.getLong("retweet_count");
             tweet.likes = object.getLong("favorite_count");
+            tweet.have_retweeted = object.getBoolean("retweeted");
+            tweet.have_liked = object.getBoolean("favorited");
             tweet.user = User.fromJson(object.getJSONObject("user"));
         } catch (JSONException e) {
             e.printStackTrace();
