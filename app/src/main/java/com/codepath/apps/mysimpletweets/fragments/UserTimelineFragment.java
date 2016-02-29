@@ -2,7 +2,8 @@ package com.codepath.apps.mysimpletweets.fragments;
 
 import android.os.Bundle;
 
-import com.codepath.apps.mysimpletweets.TwitterClient;
+import com.codepath.apps.mysimpletweets.utils.TwitterClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 /**
  * Fragment for user's list of tweets
@@ -20,6 +21,12 @@ public class UserTimelineFragment extends TweetsListFragment {
     @Override
     public void populateTweetList(boolean getNewest) {
         String screenName = getArguments().getString(TwitterClient.SCREEN_NAME);
-        client.getUserTimeline(screenName, getJsonResponseHandler(getNewest));
+        JsonHttpResponseHandler handler = getJsonResponseHandler(getNewest);
+        if (getNewest) {
+            client.getUserTimeline(screenName, handler);
+        } else {
+            client.getUserTimeline(screenName, oldestId, handler);
+        }
+
     }
 }

@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
+import com.codepath.apps.mysimpletweets.utils.TwitterClient;
 import com.codepath.oauth.OAuthLoginActionBarActivity;
 
 import butterknife.Bind;

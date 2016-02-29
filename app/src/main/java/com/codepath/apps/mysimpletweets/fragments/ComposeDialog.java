@@ -1,4 +1,4 @@
-package com.codepath.apps.mysimpletweets;
+package com.codepath.apps.mysimpletweets.fragments;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -15,8 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.codepath.apps.mysimpletweets.fragments.HomeTimelineFragment;
-import com.codepath.apps.mysimpletweets.fragments.TweetsListFragment;
+import com.codepath.apps.mysimpletweets.R;
+import com.codepath.apps.mysimpletweets.TimelineActivity;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;

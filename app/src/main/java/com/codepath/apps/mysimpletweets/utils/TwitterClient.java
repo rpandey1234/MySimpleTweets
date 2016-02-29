@@ -1,4 +1,4 @@
-package com.codepath.apps.mysimpletweets;
+package com.codepath.apps.mysimpletweets.utils;
 
 import org.scribe.builder.api.Api;
 import org.scribe.builder.api.FlickrApi;
@@ -30,6 +30,7 @@ public class TwitterClient extends OAuthBaseClient {
 	public static final String REST_CONSUMER_SECRET = "oGGDiEzneGI9KVg7GHTN5QpsEVJaBXHfhEtbkHQshHdrXOkSUc"; // Change this
 	public static final String REST_CALLBACK_URL = "oauth://codepathtweets"; // Change this (here and in manifest)
     public static final String SCREEN_NAME = "screen_name";
+    public static final int DEFAULT_COUNT = 25;
 
     public TwitterClient(Context context) {
 		super(context, REST_API_CLASS, REST_URL, REST_CONSUMER_KEY, REST_CONSUMER_SECRET,
@@ -64,7 +65,7 @@ public class TwitterClient extends OAuthBaseClient {
     public void getTimeline(Long sinceId, Long maxId, AsyncHttpResponseHandler handler) {
         String apiUrl = getApiUrl("statuses/home_timeline.json");
         RequestParams params = new RequestParams();
-        params.put("count", 25);
+        params.put("count", DEFAULT_COUNT);
         // older than
         if (maxId != null) {
             params.put("max_id", maxId);
@@ -87,17 +88,31 @@ public class TwitterClient extends OAuthBaseClient {
     }
 
     public void getUserTimeline(String screenName, AsyncHttpResponseHandler handler) {
+        getUserTimeline(screenName, null, handler);
+    }
+
+    public void getUserTimeline(String screenName, Long maxId, AsyncHttpResponseHandler handler) {
         String apiUrl = getApiUrl("statuses/user_timeline.json");
         RequestParams params = new RequestParams();
-        params.put("count", 25);
+        params.put("count", DEFAULT_COUNT);
         params.put("screen_name", screenName);
+        if (maxId != null) {
+            params.put("max_id", maxId);
+        }
         getClient().get(apiUrl, params, handler);
     }
 
     public void getMentionsTimeline(AsyncHttpResponseHandler handler) {
+        getMentionsTimeline(null, handler);
+    }
+
+    public void getMentionsTimeline(Long maxId, AsyncHttpResponseHandler handler) {
         String apiUrl = getApiUrl("statuses/mentions_timeline.json");
         RequestParams params = new RequestParams();
-        params.put("count", 25);
+        params.put("count", DEFAULT_COUNT);
+        if (maxId != null) {
+            params.put("max_id", maxId);
+        }
         getClient().get(apiUrl, params, handler);
     }
 

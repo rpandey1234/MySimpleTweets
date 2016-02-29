@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import com.codepath.apps.mysimpletweets.fragments.TweetsListFragment.LoadingListener;
 import com.codepath.apps.mysimpletweets.fragments.UserProfileFragment;
 import com.codepath.apps.mysimpletweets.fragments.UserTimelineFragment;
+import com.codepath.apps.mysimpletweets.utils.TwitterClient;
 
 public class ProfileActivity extends AppCompatActivity implements LoadingListener {
 

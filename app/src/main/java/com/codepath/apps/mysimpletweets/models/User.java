@@ -62,7 +62,7 @@ public class User extends Model {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-//        user.save();
+        user.save();
         return user;
     }
 }

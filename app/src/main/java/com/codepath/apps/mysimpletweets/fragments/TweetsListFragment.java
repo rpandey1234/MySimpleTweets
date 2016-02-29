@@ -1,32 +1,25 @@
 package com.codepath.apps.mysimpletweets.fragments;
 
 import android.app.Activity;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
-import com.codepath.apps.mysimpletweets.EndlessRecyclerViewScrollListener;
+import com.codepath.apps.mysimpletweets.utils.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.mysimpletweets.R;
-import com.codepath.apps.mysimpletweets.TimelineActivity;
-import com.codepath.apps.mysimpletweets.TweetsAdapter;
+import com.codepath.apps.mysimpletweets.adapters.TweetsAdapter;
 import com.codepath.apps.mysimpletweets.TwitterApplication;
-import com.codepath.apps.mysimpletweets.TwitterClient;
+import com.codepath.apps.mysimpletweets.utils.TwitterClient;
 import com.codepath.apps.mysimpletweets.models.Tweet;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -34,7 +27,6 @@ import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +46,13 @@ public abstract class TweetsListFragment extends Fragment {
     Long oldestId;
     TwitterClient client;
     LoadingListener loadingListener;
+
+    public interface LoadingListener {
+
+        void startLoading();
+
+        void endLoading();
+    }
 
     public void sendTweet(String body) {
         // Make API request
@@ -76,13 +75,6 @@ public abstract class TweetsListFragment extends Fragment {
                 Log.d("DEBUG", errorResponse.toString());
             }
         });
-    }
-
-    public interface LoadingListener {
-
-        public void startLoading();
-
-        public void endLoading();
     }
 
     // Store the listener (activity) that will have events fired once the fragment is attached
@@ -114,11 +106,6 @@ public abstract class TweetsListFragment extends Fragment {
         rvTweets.setAdapter(aTweets);
         layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         rvTweets.setLayoutManager(layoutManager);
-        // populate tweets from local sqlite db until twitter API call returns
-//        List<Tweet> localTweets = new Select().from(Tweet.class).limit(25).execute();
-//        System.out.println("Local tweets from SQLite!!  " + localTweets.size());
-//        tweets.addAll(localTweets);
-//        aTweets.notifyDataSetChanged();
         rvTweets.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
