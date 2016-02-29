@@ -53,7 +53,7 @@ Completed user stories:
 
 Walkthrough of user stories:
 
-![Video Walkthrough](simple_twitter_walkthrough.gif)
+![Video Walkthrough](simple_twitter_walkthrough2.gif)
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 

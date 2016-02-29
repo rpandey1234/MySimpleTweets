@@ -43,10 +43,11 @@ public class UserProfileFragment extends Fragment {
     @Bind(R.id.following) TextView tvFollowing;
     @Bind(R.id.btnLogout) Button btnLogout;
 
-    public static UserProfileFragment newInstance(String screenName) {
+    public static UserProfileFragment newInstance(String screenName, boolean ownProfile) {
         UserProfileFragment userProfileFragment = new UserProfileFragment();
         Bundle args = new Bundle();
         args.putString(TwitterClient.SCREEN_NAME, screenName);
+        args.putBoolean(TwitterClient.OWN_PROFILE, ownProfile);
         userProfileFragment.setArguments(args);
         return userProfileFragment;
     }
@@ -61,6 +62,7 @@ public class UserProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
         String screenName = getArguments().getString(TwitterClient.SCREEN_NAME);
+        boolean ownProfile = getArguments().getBoolean(TwitterClient.OWN_PROFILE);
         View view = inflater.inflate(R.layout.fragment_profile_info, container, false);
         ButterKnife.bind(this, view);
 
@@ -72,6 +74,9 @@ public class UserProfileFragment extends Fragment {
                 startActivity(intent);
             }
         });
+        if (!ownProfile) {
+            btnLogout.setVisibility(View.GONE);
+        }
 
         client.getUserInfo(screenName, new JsonHttpResponseHandler() {
             @Override

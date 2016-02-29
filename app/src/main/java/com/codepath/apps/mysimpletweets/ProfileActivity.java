@@ -22,6 +22,7 @@ public class ProfileActivity extends AppCompatActivity implements LoadingListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        boolean ownProfile = getIntent().getBooleanExtra(TwitterClient.OWN_PROFILE, false);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         String screenName = getIntent().getStringExtra(TwitterClient.SCREEN_NAME);
@@ -31,7 +32,8 @@ public class ProfileActivity extends AppCompatActivity implements LoadingListene
             UserTimelineFragment userTweetsFragment = UserTimelineFragment.newInstance(screenName);
             ft.replace(R.id.flContainer, userTweetsFragment);
 
-            UserProfileFragment userProfileFragment = UserProfileFragment.newInstance(screenName);
+            UserProfileFragment userProfileFragment = UserProfileFragment.newInstance(screenName,
+                    ownProfile);
             ft.replace(R.id.flProfileContainer, userProfileFragment);
 
             ft.commit();

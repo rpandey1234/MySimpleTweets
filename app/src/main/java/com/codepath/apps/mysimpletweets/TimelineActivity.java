@@ -26,6 +26,7 @@ import com.codepath.apps.mysimpletweets.fragments.ComposeDialog;
 import com.codepath.apps.mysimpletweets.fragments.HomeTimelineFragment;
 import com.codepath.apps.mysimpletweets.fragments.MentionsTimelineFragment;
 import com.codepath.apps.mysimpletweets.fragments.TweetsListFragment.LoadingListener;
+import com.codepath.apps.mysimpletweets.utils.TwitterClient;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -107,6 +108,7 @@ public class TimelineActivity extends AppCompatActivity implements LoadingListen
 
     private void profileView() {
         Intent intent = new Intent(this, ProfileActivity.class);
+        intent.putExtra(TwitterClient.OWN_PROFILE, true);
         startActivity(intent);
     }
 
